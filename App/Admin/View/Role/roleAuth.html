@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        li{
+            list-style-type: none;
+        }
+    </style>
+    <js href="__JS__/jquery-1.10.2.min.js"/>
+</head>
+<body>
+正在为 <b>"{$role_name}"</b> 来分配权限
+<form action="__URL__/editAuth/" method="post">
+<ul>
+    <volist name="rows" id="vo">
+        <li>
+            <input type="checkbox" value="{$vo.auth_id}" name="ch[]" id="ch_{$vo.auth_id}" class="ch" pid="{$vo.auth_pid}"
+            <php>
+                if(in_array($vo['auth_id'],$role_auth_ids_arr)){
+                echo 'checked';
+                }
+            </php>
+            >
+            <label for="ch_{$vo.auth_id}">{$vo.p}{$vo.auth_name}</label>
+        </li>
+    </volist>
+    <input type="hidden" value="{$Think.get.role_id}" name="role_id">
+    <input type="submit" value="提交">
+ <!--  <volist name="rows" id="vo">
+        <li>
+            {* if 意味着 根节点*}
+            <if condition="$vo.auth_pid eq 0">
+                {*排除掉第一个根节点*}
+                    <if condition="$i gt 1">
+                        <hr color="blue">
+                    </if>
+                    <input type="checkbox">
+                    {$vo.p}{$vo.auth_name}
+                <else/>
+                {*else 意味着 子节点*}
+                <hr>
+               <input type="checkbox">
+                {$vo.p}{$vo.auth_name}
+            </if>
+        </li>
+    </volist>-->
+
+</ul>
+</form>
+</body>
+</html>
+<script>
+    $('.ch').click(function () {
+        var auth_id = $(this).val();
+        var thispid = Number($(this).attr('pid'));
+        if(thispid ==0){ //当前点击的对象为根节点
+            var all =  $(this).is(':checked');
+            $('.ch').each(function () {
+                //判断当前是否已经选中
+                if(all){
+                    $('[pid='+auth_id+']').prop('checked','checked');
+                }else{
+                    $('[pid='+auth_id+']').removeAttr('checked');
+                }
+            })
+        }else{
+            //当前点击的对象不是根节点
+            var bool = true;
+            $('.ch').each(function () {
+                //判断pid名称跟我一样的子节点的状态
+                //如果跟我同级的子节点只要有一个还是被选中的状态就让bool = false;
+                if($('[pid = '+thispid+']').is(':checked')){
+                    bool = false;
+                }
+            })
+            //如果if不执行 表示 根我同级的子节点都是未被选中状态 那么我们的父节点就可以取消选中了
+            if(bool){
+                $('[value='+thispid+']').removeAttr('checked');
+            }
+            //如果不是根节点 判断当前是否已经被选中
+            var all =  $(this).is(':checked');
+            if(all){
+                //如果当前已经被选中，让我的父节点也选中
+                $('[value='+thispid+']').prop('checked','checked');
+            }
+        }
+    })
+</script>
